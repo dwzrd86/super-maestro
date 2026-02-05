@@ -1,0 +1,25 @@
+{
+  "name": "@agentforge/cozo",
+  "version": "0.1.0",
+  "description": "CozoDB integration for persistent agent memory",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "bun test",
+    "lint": "tsc --noEmit",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "cozo-node": "^0.7.6"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.4.0"
+  },
+  "peerDependencies": {
+    "@agentforge/shared": "*"
+  }
+}

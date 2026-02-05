@@ -1,0 +1,35 @@
+{
+  "name": "agentforge",
+  "version": "0.2.0",
+  "description": "Unified AI Agent Orchestrator - Desktop-native with persistent intelligence and distributed execution",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "lib/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "type-check": "turbo run type-check",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "dev:web": "turbo run dev --filter=@agentforge/web",
+    "dev:runner": "turbo run dev --filter=@agentforge/runner",
+    "db:migrate": "cd supabase && supabase db push",
+    "db:generate": "cd supabase && supabase gen types typescript --local > ../packages/shared/src/database.types.ts",
+    "mesh:start": "turbo run dev --filter=@agentforge/mesh",
+    "cozo:test": "turbo run test --filter=@agentforge/cozo",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "turbo": "^2.0.0",
+    "typescript": "^5.4.0",
+    "vitest": "^4.0.18"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "packageManager": "npm@10.2.0",
+  "license": "AGPL-3.0"
+}
