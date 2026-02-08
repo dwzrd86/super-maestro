@@ -74,3 +74,19 @@ export type {
   CreateTeamInput,
   InviteTeamMemberInput,
 } from './user';
+
+// Game types
+export type {
+  PowerUp,
+  Achievement,
+  World,
+  Level,
+  TrackDifficulty,
+  Track,
+  KartRace,
+  KartRacer,
+  CoinBalance,
+  LivesConfig,
+  PlayerStats,
+  LeaderboardEntry,
+} from './game';

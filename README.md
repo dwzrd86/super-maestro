@@ -1,15 +1,17 @@
-# AgentForge
+# Super Maestro
 
-> **Unified AI Agent Orchestrator** — Desktop-native with persistent intelligence and distributed execution.
+> **"It's-a me, your AI agent orchestrator!"**
 
-A synthesis of [pedramamini/Maestro](https://github.com/pedramamini/Maestro) and [23blocks-OS/ai-maestro](https://github.com/23blocks-OS/ai-maestro), combining the best of both worlds: keyboard-first desktop UX with persistent CozoDB memory, peer mesh distribution, and intelligent agent orchestration.
+The unified AI agent orchestration platform with a retro gaming aesthetic. Born from combining [Maestro](https://github.com/pedramamini/Maestro) (desktop orchestrator) and [ai-maestro](https://github.com/23blocks-OS/ai-maestro) (intelligent web dashboard).
+
+Worlds, levels, power-ups, and co-op play — natural metaphors for agent orchestration.
 
 ## Architecture
 
 ```
-agentforge/
+super-maestro/
 ├── apps/
-│   ├── web/          # Next.js 14 dashboard (App Router)
+│   ├── web/          # Next.js 14 dashboard (App Router) with game UI
 │   └── runner/       # Bun local agent runner with tmux integration
 ├── lib/
 │   ├── cozo/         # CozoDB integration - persistent agent memory
@@ -20,14 +22,38 @@ agentforge/
 └── turbo.json        # Turborepo build configuration
 ```
 
-## Synthesis Features
+## Core Metaphor
 
-| Layer | Source | Feature |
-|-------|--------|---------|
-| **Intelligence** | ai-maestro | CozoDB memory, Code Graph, semantic search |
-| **Distribution** | ai-maestro | Peer mesh network, portable agents |
-| **Automation** | Maestro | Playbooks, Auto Run, 24-hour sessions |
-| **Communication** | Both | Agent-to-agent messaging, Group Chat |
+| Gaming Concept | Platform Feature | Technical Layer |
+|---|---|---|
+| **Worlds** | Project workspaces | Git worktrees, isolated environments |
+| **Levels** | Tasks within playbooks | Sequential/parallel task steps |
+| **Power-ups** | Agent skills | Equippable skill modules |
+| **Coins** | Token tracking | API usage with visual feedback |
+| **Lives** | Retry budget | Configurable error retry limits |
+| **Pipes** | Agent messaging | Mesh network channels |
+| **Boss Battles** | Complex tasks | Multi-agent playbook finales |
+| **Kart** | Agent benchmarking | Competitive coding challenges |
+
+## Themes
+
+4 built-in themes inspired by retro gaming worlds:
+
+- **Classic** — Full retro pixel aesthetic with 8-bit accents
+- **Modern** — Clean professional dashboard
+- **Dark World** — Dark mode with neon pixel accents
+- **Underground** — Terminal-focused, green-on-black
+
+## Maestro Kart
+
+Agent benchmarking disguised as a racing game:
+
+| Track | Challenge Type | Duration |
+|---|---|---|
+| Mushroom Cup | Simple CRUD tasks | ~2 min |
+| Flower Cup | API integration | ~5 min |
+| Star Cup | Full-stack feature | ~15 min |
+| Special Cup | Architecture challenge | ~30 min |
 
 ## Tech Stack
 
@@ -62,62 +88,42 @@ npm run dev
 ### Development Commands
 
 ```bash
-# Run all apps in development mode
-npm run dev
-
-# Run only the web dashboard
-npm run dev:web
-
-# Run only the agent runner
-npm run dev:runner
-
-# Build all apps
-npm run build
-
-# Type check
-npm run type-check
-
-# Lint
-npm run lint
+npm run dev          # Run all apps
+npm run dev:web      # Web dashboard only
+npm run dev:runner   # Agent runner only
+npm run build        # Build all apps
+npm run type-check   # Type check
+npm run lint         # Lint
 ```
 
 ## Apps
 
 ### Web Dashboard (apps/web)
 
-Next.js 14 application providing:
-- Agent management and monitoring
-- Playbook creation and execution
-- Real-time session viewing
-- Team and settings management
+Next.js 14 application with retro gaming UI:
+- Agent management with power-up badges
+- Playbook creation as game worlds/levels
+- Maestro Kart benchmarking mode
+- Achievement system
+- 4 switchable themes
 
 ### Agent Runner (apps/runner)
 
-Bun-based local service that:
-- Discovers and manages tmux sessions
-- Streams terminal output via WebSocket
-- Executes playbook tasks
-- Reports status to the web dashboard
+Bun-based local service:
+- tmux session management
+- WebSocket terminal streaming
+- Playbook task execution
+- Status reporting to dashboard
 
 ## Packages
 
 ### Shared (packages/shared)
 
 Common TypeScript types and utilities:
-- Agent, AgentSession interfaces
-- Playbook, PlaybookTask interfaces
+- Agent, Session, Playbook interfaces
+- Game mechanics types (PowerUp, Achievement, Track, KartRace)
 - Message types for real-time communication
-- User and Team models
-
-## Database
-
-The Supabase schema includes:
-- Users and teams
-- Agents and sessions
-- Playbooks and tasks
-- Messages and audit logs
-
-See `supabase/migrations/` for the complete schema.
+- Constants and configuration
 
 ## Synthesis Libraries
 
@@ -128,17 +134,11 @@ Persistent agent memory using CozoDB:
 ```typescript
 import { AgentDatabase, ConversationStore, CodeGraphStore } from '@agentforge/cozo';
 
-// Each agent gets its own database
 const db = new AgentDatabase({ agentId: 'agent-123', baseDir: '~/.agentforge/agents' });
 await db.open();
 
-// Store conversations
 const conversations = new ConversationStore(db);
 await conversations.addMessage({ role: 'user', content: 'Hello!', ... });
-
-// Build code understanding
-const codeGraph = new CodeGraphStore(db);
-await codeGraph.upsertNode({ path: 'src/index.ts', kind: 'file', ... });
 ```
 
 ### @agentforge/mesh
@@ -148,17 +148,19 @@ Peer mesh network for distributed agents:
 ```typescript
 import { MeshNode, AgentMessenger } from '@agentforge/mesh';
 
-// Start a mesh node
 const node = new MeshNode({ port: 23001 });
 await node.start();
-
-// Register local agents
 node.registerAgent('agent-123');
 
-// Send agent-to-agent messages
 const messenger = new AgentMessenger(node);
 await messenger.send('agent-123', 'agent-456', 'Task completed!', { priority: 'high' });
 ```
+
+## Branding
+
+- **Color Palette**: Red (#E53E3E), Gold (#ECC94B), Blue (#3B82F6), Green (#48BB78)
+- **Typography**: Press Start 2P (headers), Inter (body)
+- **Zero IP risk**: All original assets, no franchise references
 
 ## License
 

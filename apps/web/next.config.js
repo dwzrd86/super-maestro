@@ -22,7 +22,7 @@ const nextConfig = {
 
   // Environment variables to expose to the browser
   env: {
-    NEXT_PUBLIC_APP_NAME: 'AgentForge',
+    NEXT_PUBLIC_APP_NAME: 'Super Maestro',
   },
 };
 

@@ -4,81 +4,143 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   Bot,
+  Flag,
   Home,
   PlaySquare,
   Settings,
   Terminal,
-  Zap,
+  Trophy,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Logo } from '@/components/branding/Logo';
+import { ThemeToggle } from '@/components/branding/ThemeToggle';
+import { CoinCounter } from '@/components/game/CoinCounter';
+import { LivesCounter } from '@/components/game/LivesCounter';
 
 /**
- * Navigation items for the sidebar.
+ * Navigation items — using game metaphors from the vision doc.
  */
 const navigation = [
-  { name: 'Dashboard', href: '/', icon: Home },
-  { name: 'Agents', href: '/agents', icon: Bot },
-  { name: 'Playbooks', href: '/playbooks', icon: PlaySquare },
+  { name: 'World Map', href: '/', icon: Home },
+  { name: 'Player Select', href: '/agents', icon: Bot },
+  { name: 'Worlds', href: '/playbooks', icon: Flag },
+  { name: 'Kart', href: '/kart', icon: Trophy },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];
 
 /**
- * Sidebar component - Main navigation for the dashboard.
- *
- * Features:
- * - Logo and brand
- * - Navigation links with active state
- * - User section placeholder
+ * Sidebar — Super Maestro branded navigation with game HUD elements.
  */
 export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="flex h-full w-64 flex-col border-r border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
+    <aside
+      className="flex h-full w-64 flex-col"
+      style={{
+        background: 'var(--sm-bg-sidebar)',
+        borderRight: '2px solid var(--sm-border)',
+      }}
+    >
       {/* Logo section */}
-      <div className="flex h-16 items-center gap-2 border-b border-gray-200 px-6 dark:border-gray-800">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600">
-          <Zap className="h-5 w-5 text-white" />
+      <div
+        className="flex h-16 items-center gap-3 px-5"
+        style={{ borderBottom: '2px solid var(--sm-border)' }}
+      >
+        <Logo size={32} />
+        <div className="flex flex-col">
+          <span
+            className="font-heading text-[10px] leading-tight"
+            style={{ color: 'var(--sm-text-primary)' }}
+          >
+            SUPER
+          </span>
+          <span
+            className="font-heading text-[10px] leading-tight"
+            style={{ color: 'var(--sm-star-yellow)' }}
+          >
+            MAESTRO
+          </span>
         </div>
-        <span className="text-xl font-bold text-gray-900 dark:text-white">
-          AgentForge
-        </span>
+      </div>
+
+      {/* Game HUD — Coins & Lives */}
+      <div
+        className="flex items-center justify-between px-5 py-3"
+        style={{ borderBottom: '1px solid var(--sm-border-muted)' }}
+      >
+        <CoinCounter count={1247} label="tokens" />
+        <LivesCounter current={3} max={5} />
       </div>
 
       {/* Navigation */}
       <nav className="flex-1 space-y-1 px-3 py-4">
         {navigation.map((item) => {
-          const isActive = pathname === item.href;
+          const isActive = item.href === '/'
+            ? pathname === '/'
+            : pathname.startsWith(item.href);
+
           return (
             <Link
               key={item.name}
               href={item.href}
               className={cn(
-                'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-                isActive
-                  ? 'bg-brand-50 text-brand-700 dark:bg-brand-900/30 dark:text-brand-400'
-                  : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
+                'group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200',
+                isActive ? 'pixel-border-active' : ''
               )}
+              style={{
+                background: isActive ? 'var(--sm-primary-muted)' : 'transparent',
+                color: isActive ? 'var(--sm-primary)' : 'var(--sm-text-secondary)',
+              }}
             >
-              <item.icon className="h-5 w-5" />
-              {item.name}
+              <item.icon
+                className="h-5 w-5 transition-transform group-hover:scale-110"
+                style={{
+                  color: isActive ? 'var(--sm-primary)' : 'var(--sm-text-muted)',
+                }}
+              />
+              <span>{item.name}</span>
+              {item.name === 'Kart' && (
+                <span
+                  className="ml-auto rounded-full px-1.5 py-0.5 font-heading text-[8px]"
+                  style={{
+                    background: 'var(--sm-star-yellow)',
+                    color: 'var(--sm-text-inverse)',
+                  }}
+                >
+                  NEW
+                </span>
+              )}
             </Link>
           );
         })}
       </nav>
 
-      {/* Quick actions */}
-      <div className="border-t border-gray-200 px-3 py-4 dark:border-gray-800">
-        <div className="rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-100 dark:bg-brand-900/30">
-              <Terminal className="h-5 w-5 text-brand-600 dark:text-brand-400" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-900 dark:text-white">
-                Local Runner
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
+      {/* Runner Status */}
+      <div
+        className="px-3 py-3"
+        style={{ borderTop: '1px solid var(--sm-border)' }}
+      >
+        <div
+          className="flex items-center gap-3 rounded-lg p-3"
+          style={{ background: 'var(--sm-bg-secondary)' }}
+        >
+          <div
+            className="flex h-10 w-10 items-center justify-center rounded-lg"
+            style={{ background: 'var(--sm-info-bg)' }}
+          >
+            <Terminal className="h-5 w-5" style={{ color: 'var(--sm-info)' }} />
+          </div>
+          <div>
+            <p
+              className="text-sm font-medium"
+              style={{ color: 'var(--sm-text-primary)' }}
+            >
+              Local Runner
+            </p>
+            <div className="flex items-center gap-1.5">
+              <div className="status-dot status-running" />
+              <p className="text-xs" style={{ color: 'var(--sm-success)' }}>
                 Connected
               </p>
             </div>
@@ -86,18 +148,13 @@ export function Sidebar() {
         </div>
       </div>
 
-      {/* User section placeholder */}
-      <div className="border-t border-gray-200 px-3 py-4 dark:border-gray-800">
-        <div className="flex items-center gap-3 rounded-lg px-3 py-2">
-          <div className="h-8 w-8 rounded-full bg-gray-200 dark:bg-gray-700" />
-          <div className="flex-1">
-            <p className="text-sm font-medium text-gray-900 dark:text-white">
-              User Name
-            </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              user@example.com
-            </p>
-          </div>
+      {/* Theme Toggle */}
+      <div
+        className="px-3 py-3"
+        style={{ borderTop: '1px solid var(--sm-border)' }}
+      >
+        <div className="flex items-center justify-between px-2">
+          <ThemeToggle />
         </div>
       </div>
     </aside>

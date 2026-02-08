@@ -1,38 +1,32 @@
-import { Clock, GitBranch, Play, PlaySquare, Plus, Search } from 'lucide-react';
+'use client';
+
+import { Clock, Flag, GitBranch, Lock, Play, Plus, Search, Star } from 'lucide-react';
+import { ProgressPipe } from '@/components/game/ProgressPipe';
 
 /**
- * Playbooks page - Create and manage automation playbooks.
+ * Worlds — Playbooks reimagined as game worlds with levels.
  */
-export default function PlaybooksPage() {
+export default function WorldsPage() {
   return (
     <div className="space-y-6">
-      {/* Page header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Playbooks
-          </h1>
-          <p className="mt-2 text-gray-600 dark:text-gray-400">
-            Reusable automation workflows for your agents.
+          <h1 className="font-heading text-lg" style={{ color: 'var(--sm-text-primary)' }}>WORLDS</h1>
+          <p className="mt-2 text-sm" style={{ color: 'var(--sm-text-secondary)' }}>
+            Each world is a playbook. Each level is a task. Complete them all to defeat the boss.
           </p>
         </div>
-        <button className="flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
-          <Plus className="h-4 w-4" />
-          New Playbook
+        <button className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all hover:scale-105" style={{ background: 'var(--sm-primary)', color: 'var(--sm-text-inverse)' }}>
+          <Plus className="h-4 w-4" /> New World
         </button>
       </div>
 
-      {/* Search and filters */}
       <div className="flex items-center gap-4">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search playbooks..."
-            className="w-full rounded-lg border border-gray-200 bg-white py-2 pl-10 pr-4 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800"
-          />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" style={{ color: 'var(--sm-text-muted)' }} />
+          <input type="text" placeholder="Search worlds..." className="w-full rounded-lg py-2 pl-10 pr-4 text-sm focus:outline-none" style={{ background: 'var(--sm-bg-card)', border: '2px solid var(--sm-border)', color: 'var(--sm-text-primary)' }} />
         </div>
-        <select className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm dark:border-gray-700 dark:bg-gray-800">
+        <select className="rounded-lg px-4 py-2 text-sm" style={{ background: 'var(--sm-bg-card)', border: '2px solid var(--sm-border)', color: 'var(--sm-text-primary)' }}>
           <option>All Tags</option>
           <option>Deployment</option>
           <option>Testing</option>
@@ -40,127 +34,71 @@ export default function PlaybooksPage() {
         </select>
       </div>
 
-      {/* Playbooks list */}
       <div className="space-y-4">
-        <PlaybookRow
-          name="Deploy to Production"
-          description="Build, test, and deploy the application to production servers."
-          tasks={8}
-          avgDuration="3m 45s"
-          lastRun="10 minutes ago"
-          runs={47}
-          tags={['deployment', 'production']}
-        />
-        <PlaybookRow
-          name="Code Review Pipeline"
-          description="Run linting, type checking, and automated tests on pull requests."
-          tasks={5}
-          avgDuration="2m 15s"
-          lastRun="Just now"
-          runs={234}
-          tags={['testing', 'ci']}
-        />
-        <PlaybookRow
-          name="Database Backup"
-          description="Create incremental backup of the production database."
-          tasks={4}
-          avgDuration="1m 30s"
-          lastRun="1 hour ago"
-          runs={128}
-          tags={['maintenance', 'database']}
-        />
-        <PlaybookRow
-          name="Security Scan"
-          description="Run comprehensive security vulnerability scanning."
-          tasks={6}
-          avgDuration="5m 20s"
-          lastRun="6 hours ago"
-          runs={42}
-          tags={['security']}
-        />
-        <PlaybookRow
-          name="Performance Test"
-          description="Run load tests and collect performance metrics."
-          tasks={10}
-          avgDuration="15m 00s"
-          lastRun="1 day ago"
-          runs={18}
-          tags={['testing', 'performance']}
-        />
+        <WorldCard number={1} name="Deploy to Production" description="Build, test, and deploy the application to production servers." levels={8} completedLevels={8} avgDuration="3m 45s" lastRun="10 min ago" runs={47} tags={['deployment', 'production']} status="completed" />
+        <WorldCard number={2} name="Code Review Pipeline" description="Run linting, type checking, and automated tests on pull requests." levels={5} completedLevels={5} avgDuration="2m 15s" lastRun="Just now" runs={234} tags={['testing', 'ci']} status="completed" />
+        <WorldCard number={3} name="Database Backup" description="Create incremental backup of the production database." levels={4} completedLevels={4} avgDuration="1m 30s" lastRun="1 hour ago" runs={128} tags={['maintenance', 'database']} status="completed" />
+        <WorldCard number={4} name="Security Scan" description="Run comprehensive security vulnerability scanning." levels={6} completedLevels={3} avgDuration="5m 20s" lastRun="6 hours ago" runs={42} tags={['security']} status="in_progress" />
+        <WorldCard number={5} name="Performance Test" description="Run load tests and collect performance metrics." levels={10} completedLevels={0} avgDuration="15m 00s" lastRun="Never" runs={0} tags={['testing', 'performance']} status="locked" />
       </div>
     </div>
   );
 }
 
-function PlaybookRow({
-  name,
-  description,
-  tasks,
-  avgDuration,
-  lastRun,
-  runs,
-  tags,
+function WorldCard({
+  number, name, description, levels, completedLevels, avgDuration, lastRun, runs, tags, status,
 }: {
-  name: string;
-  description: string;
-  tasks: number;
-  avgDuration: string;
-  lastRun: string;
-  runs: number;
-  tags: string[];
+  number: number; name: string; description: string; levels: number; completedLevels: number;
+  avgDuration: string; lastRun: string; runs: number; tags: string[];
+  status: 'completed' | 'in_progress' | 'locked';
 }) {
-  return (
-    <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-6 transition-shadow hover:shadow-md dark:border-gray-800 dark:bg-gray-900">
-      <div className="flex items-center gap-4">
-        {/* Icon */}
-        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-900/30">
-          <PlaySquare className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-        </div>
+  const progress = levels > 0 ? (completedLevels / levels) * 100 : 0;
+  const statusConfig: Record<string, { label: string; Icon: typeof Star; color: string }> = {
+    completed: { label: 'WORLD CLEAR', Icon: Star, color: 'var(--sm-star-yellow)' },
+    in_progress: { label: 'IN PROGRESS', Icon: Flag, color: 'var(--sm-info)' },
+    locked: { label: 'LOCKED', Icon: Lock, color: 'var(--sm-text-muted)' },
+  };
+  const s = statusConfig[status];
 
-        {/* Content */}
-        <div>
+  return (
+    <div className={`game-card flex items-center justify-between p-6 ${status === 'locked' ? 'opacity-50' : ''}`}>
+      <div className="flex items-center gap-5">
+        <div className="flex h-16 w-16 flex-col items-center justify-center rounded-xl"
+          style={{ background: status === 'completed' ? 'var(--sm-success-bg)' : status === 'in_progress' ? 'var(--sm-info-bg)' : 'var(--sm-bg-secondary)', border: `2px solid ${s.color}` }}>
+          <span className="font-heading text-[10px]" style={{ color: 'var(--sm-text-muted)' }}>WORLD</span>
+          <span className="font-heading text-sm" style={{ color: s.color }}>{number}</span>
+        </div>
+        <div className="max-w-lg">
           <div className="flex items-center gap-2">
-            <h3 className="font-semibold text-gray-900 dark:text-white">
-              {name}
-            </h3>
+            <h3 className="font-heading text-xs" style={{ color: 'var(--sm-text-primary)' }}>{name}</h3>
             <div className="flex gap-1">
               {tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-400"
-                >
-                  {tag}
-                </span>
+                <span key={tag} className="rounded px-1.5 py-0.5 text-[10px]" style={{ background: 'var(--sm-bg-secondary)', color: 'var(--sm-text-muted)' }}>{tag}</span>
               ))}
             </div>
           </div>
-          <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-            {description}
-          </p>
-          <div className="mt-2 flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-            <span className="flex items-center gap-1">
-              <GitBranch className="h-4 w-4" />
-              {tasks} tasks
-            </span>
-            <span className="flex items-center gap-1">
-              <Clock className="h-4 w-4" />
-              ~{avgDuration}
-            </span>
+          <p className="mt-1 text-sm" style={{ color: 'var(--sm-text-secondary)' }}>{description}</p>
+          <div className="mt-2 flex items-center gap-4 text-xs" style={{ color: 'var(--sm-text-muted)' }}>
+            <span className="flex items-center gap-1"><GitBranch className="h-3.5 w-3.5" />{levels} levels</span>
+            <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" />~{avgDuration}</span>
             <span>{runs} runs</span>
-            <span>Last run {lastRun}</span>
+            <span>Last: {lastRun}</span>
+          </div>
+          <div className="mt-2 w-64">
+            <ProgressPipe progress={progress} showPercent={false} />
           </div>
         </div>
       </div>
-
-      {/* Actions */}
-      <div className="flex items-center gap-2">
-        <button className="flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800">
-          Edit
-        </button>
-        <button className="flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
-          <Play className="h-4 w-4" />
-          Run
-        </button>
+      <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1.5">
+          <s.Icon className="h-4 w-4" style={{ color: s.color }} />
+          <span className="font-heading text-[8px]" style={{ color: s.color }}>{s.label}</span>
+        </div>
+        {status !== 'locked' && (
+          <button className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all hover:scale-105" style={{ background: 'var(--sm-primary)', color: 'var(--sm-text-inverse)' }}>
+            <Play className="h-4 w-4" />{status === 'completed' ? 'Replay' : 'Play'}
+          </button>
+        )}
       </div>
     </div>
   );
