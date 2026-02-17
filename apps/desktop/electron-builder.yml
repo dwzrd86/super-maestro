@@ -25,7 +25,7 @@ extraResources:
 
 publish:
   - provider: generic
-    url: https://updates.supermaestro.invalid/appimage
+    url: https://updates.supermaestro.invalid/desktop
     channel: latest
 
 linux:
@@ -37,3 +37,34 @@ linux:
     Name: Super Maestro
     Comment: Retro-styled AI agent orchestrator
     Categories: Utility;Development;
+  publish:
+    - provider: generic
+      url: https://updates.supermaestro.invalid/appimage
+      channel: latest
+
+mac:
+  target:
+    - dmg
+    - zip
+  category: public.app-category.productivity
+  artifactName: SuperMaestro-${version}-mac-${arch}.${ext}
+  icon: build/icon.icns
+  publish:
+    - provider: generic
+      url: https://updates.supermaestro.invalid/mac
+      channel: latest
+
+win:
+  target:
+    - nsis
+  artifactName: SuperMaestro-${version}-win-${arch}.${ext}
+  icon: build/icon.ico
+  publish:
+    - provider: generic
+      url: https://updates.supermaestro.invalid/win
+      channel: latest
+
+nsis:
+  oneClick: true
+  perMachine: false
+  allowToChangeInstallationDirectory: false

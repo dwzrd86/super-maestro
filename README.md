@@ -96,15 +96,18 @@ npm run type-check   # Type check
 npm run lint         # Lint
 ```
 
-## Desktop App (AppImage)
+## Desktop App
 
-- Build the standalone web bundle (update env values as needed):\
-  `NEXT_PUBLIC_SUPABASE_URL=http://localhost NEXT_PUBLIC_SUPABASE_ANON_KEY=dummy NEXT_PUBLIC_RUNNER_WS_URL=ws://localhost:3001 NEXTAUTH_SECRET=devsecret NEXTAUTH_URL=http://localhost npm run build:web`
-- Package the Electron shell as an AppImage: `npm run package:appimage` (output lands in `apps/desktop/dist/SuperMaestro-<version>-<arch>.AppImage`).
+- Build the shared bundles (web + runner) before packaging:\
+  `NEXT_PUBLIC_SUPABASE_URL=http://localhost NEXT_PUBLIC_SUPABASE_ANON_KEY=dummy NEXT_PUBLIC_RUNNER_WS_URL=ws://localhost:3001 NEXTAUTH_SECRET=devsecret NEXTAUTH_URL=http://localhost npm run prep:desktop`
+- Package outputs:
+  - Linux (AppImage): `npm run package:appimage` → `apps/desktop/dist/SuperMaestro-<version>-<arch>.AppImage` (+ `.sig` if signing enabled)
+  - macOS (run on macOS): `npm run package:mac` → `apps/desktop/dist/SuperMaestro-<version>-mac-<arch>.dmg` and `.zip`
+  - Windows (run on Windows): `npm run package:win` → `apps/desktop/dist/SuperMaestro-<version>-win-<arch>.exe` plus `latest.yml` / blockmap for auto-updates
 - Dev loop: run `npm run dev:web` for the Next.js server, then `npm run dev:desktop` to open the Electron shell against `http://localhost:3000` (override with `DEV_SERVER_URL` if needed).
 - Security defaults: renderer sandbox + `contextIsolation`, Node integration disabled, single-instance lock, navigation/new windows blocked to external browsers, CSP and hardened headers applied to every response, all permissions denied by default, content protection enabled, and the bundled Next.js server bound to `127.0.0.1` only.
-- Code signing: provide `APPIMAGE_SIGNING_KEY` (ASCII-armored or base64) or `APPIMAGE_SIGNING_KEY_FILE`, plus optional `APPIMAGE_SIGNING_KEY_ID` / `APPIMAGE_SIGNING_KEY_PASSPHRASE`. `npm run package:appimage` now runs `apps/desktop/scripts/sign-appimage.js` to GPG-sign the AppImage and drop `<artifact>.sig` beside it. Verify with `gpg --verify apps/desktop/dist/SuperMaestro-<version>-<arch>.AppImage.sig apps/desktop/dist/SuperMaestro-<version>-<arch>.AppImage`.
-- Auto-updates: packaged AppImages include `electron-updater` metadata (generic provider). Set `SUPER_MAESTRO_UPDATE_URL` (and optional `SUPER_MAESTRO_UPDATE_CHANNEL`) at build time for your feed; the app polls hourly and prompts to restart after downloading an update. Set `SUPER_MAESTRO_DISABLE_UPDATES=1` to skip update checks or `SUPER_MAESTRO_AUTO_DOWNLOAD=false` to ask before downloading.
+- Code signing: Linux AppImages use `APPIMAGE_SIGNING_KEY` or `APPIMAGE_SIGNING_KEY_FILE` (with optional `APPIMAGE_SIGNING_KEY_ID` / `APPIMAGE_SIGNING_KEY_PASSPHRASE`) to GPG-sign via `apps/desktop/scripts/sign-appimage.js`; macOS and Windows builds pick up standard `electron-builder` signing env vars (`CSC_LINK`/`CSC_KEY_PASSWORD`, `APPLE_ID`/`APPLE_APP_SPECIFIC_PASSWORD`, or `WIN_CSC_LINK`/`WIN_CSC_KEY_PASSWORD`). Without these values, platform builds remain unsigned.
+- Auto-updates: packaged builds ship `electron-updater` metadata (generic provider). Defaults point to `https://updates.supermaestro.invalid/appimage` (Linux), `/mac`, and `/win`; override with `SUPER_MAESTRO_UPDATE_URL` (and optional `SUPER_MAESTRO_UPDATE_CHANNEL`). The app polls hourly and prompts before restart; set `SUPER_MAESTRO_DISABLE_UPDATES=1` to skip checks or `SUPER_MAESTRO_AUTO_DOWNLOAD=false` to ask before downloading.
 
 ## Apps
 

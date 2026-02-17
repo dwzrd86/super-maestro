@@ -2,7 +2,7 @@
   "name": "@agentforge/desktop",
   "version": "0.1.0",
   "private": true,
-  "description": "Electron shell for the Super Maestro desktop AppImage",
+  "description": "Electron shell for the Super Maestro desktop apps",
   "main": "main.js",
   "license": "AGPL-3.0",
   "scripts": {
@@ -10,6 +10,8 @@
     "start": "electron .",
     "package": "electron-builder -c electron-builder.yml",
     "package:appimage": "electron-builder -c electron-builder.yml --linux AppImage",
+    "package:mac": "electron-builder -c electron-builder.yml --mac dmg zip",
+    "package:win": "electron-builder -c electron-builder.yml --win nsis",
     "clean": "rm -rf dist",
     "lint": "node --check main.js preload.js"
   },

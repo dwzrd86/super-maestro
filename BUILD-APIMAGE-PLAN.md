@@ -26,13 +26,19 @@ apps/desktop/          # Electron shell
 ## 🚀 Quick Build Commands
 
 ```bash
-# Build the Next.js app for production
-npm run build:web
+# Build the Next.js app + runner for production
+npm run prep:desktop
 
-# Package as AppImage
+# Package as AppImage (Linux)
 npm run package:appimage
 
-# Output: apps/desktop/dist/SuperMaestro-0.1.0-x64.AppImage
+# Package for macOS (run on macOS)
+npm run package:mac
+
+# Package for Windows (run on Windows)
+npm run package:win
+
+# Outputs land in apps/desktop/dist/
 ```
 
 ---
@@ -117,51 +123,56 @@ A competitive agent benchmarking game disguised as Mario Kart:
 
 ## Remaining Tasks
 
-### Task 1: Add App Icon
-Create icon files in `apps/desktop/build/`:
-- `icon.png` (512x512) - Linux AppImage
-- `icon.icns` - macOS (future)
-- `icon.ico` - Windows (future)
+- [x] Task 1: Add App Icon  
+  Created a gold coin badge with red "SM" lettering and saved `icon.png` (512x512), `icon.icns`, and `icon.ico` in `apps/desktop/build/` for Linux/macOS/Windows packaging.
 
-### Task 2: Bundle Bun Runner (Optional)
-To include the agent runner in the AppImage:
+- [x] Task 2: Bundle Bun Runner (Optional)  
+  To include the agent runner in the AppImage:
 
-1. Update `apps/desktop/electron-builder.yml`:
-```yaml
-extraResources:
-  - from: ../web/.next/standalone
-    to: web/.next/standalone
-  - from: ../web/.next/static
-    to: web/.next/static
-  - from: ../web/public
-    to: web/public
-  - from: ../runner
-    to: runner
-```
+  1. Update `apps/desktop/electron-builder.yml`:
+  ```yaml
+  extraResources:
+    - from: ../web/.next/standalone
+      to: web/.next/standalone
+    - from: ../web/.next/static
+      to: web/.next/static
+    - from: ../web/public
+      to: web/public
+    - from: ../runner
+      to: runner
+  ```
 
-2. Update `apps/desktop/main.js` to start runner on launch.
+  2. Update `apps/desktop/main.js` to start runner on launch.
+  Notes: Runner resources are now bundled; main process boots the Bun runner on a loopback port with health checks and shutdown handling.
 
-### Task 3: Test AppImage
-```bash
-npm run package:appimage
-./apps/desktop/dist/SuperMaestro-*.AppImage
-```
+- [x] Task 3: Test AppImage  
+  ```bash
+  npm run package:appimage
+  ./apps/desktop/dist/SuperMaestro-*.AppImage
+  ```
+  Notes: Added `electronVersion: 31.7.7` and kept `7zip-bin`/`app-builder-bin` in root deps so electron-builder wouldn't prune its own binaries during the production install step. AppImage builds to `apps/desktop/dist/SuperMaestro-0.1.0-x86_64.AppImage`; launch tested on DISPLAY=:1 with `timeout 20 ./apps/desktop/dist/SuperMaestro-0.1.0-x86_64.AppImage --no-sandbox --disable-gpu`—no console errors before timeout (terminated intentionally after 20s).
 
-### Task 4: Verify Gaming Features
-- [ ] World Map displays
-- [ ] Pixel font renders (`Press Start 2P`)
-- [ ] Maestro Kart accessible at `/kart`
-- [ ] All themes work
-- [ ] CSS animations (coin-spin, star-pulse)
+- [x] Task 4: Verify Gaming Features  
+  - [x] World Map displays
+  - [x] Pixel font renders (`Press Start 2P`)
+  - [x] Maestro Kart accessible at `/kart`
+  - [x] All themes work
+  - [x] CSS animations (coin-spin, star-pulse)
+
+  Verified via Next.js production build (`npm run build:web`) and code review: world map dashboard at `/` renders, pixel font loaded in `app/layout.tsx`, Kart routes (including `/kart`) are prerendered, theme toggle wiring covers classic/modern/dark-world/underground palettes, and coin-spin/star-pulse animations are defined in `app/globals.css` and used in HUD components. Re-ran `npm run build:web` today to confirm pages (including `/kart` and world map) still prerender and assets compile cleanly.
 
 ---
 
 ## Future Enhancements
 
-- [ ] Auto-update with electron-updater
-- [ ] Code signing for production
-- [ ] CI/CD for automated builds
-- [ ] macOS and Windows builds
+- [x] Auto-update with electron-updater  
+  Added `electron-updater` with generic provider metadata and startup polling. Defaults now point at `https://updates.supermaestro.invalid/appimage` (Linux) with platform overrides for `/mac` and `/win`, but feeds can be overridden via `SUPER_MAESTRO_UPDATE_URL` / `SUPER_MAESTRO_UPDATE_CHANNEL`. Checks run hourly by default, and downloaded updates prompt for restart before install. Set `SUPER_MAESTRO_DISABLE_UPDATES=1` to skip checks or `SUPER_MAESTRO_AUTO_DOWNLOAD=false` to require a download confirmation.
+- [x] Code signing for production  
+  Added an electron-builder `afterAllArtifactBuild` hook (`apps/desktop/scripts/sign-appimage.js`) that imports a GPG key from `APPIMAGE_SIGNING_KEY` / `APPIMAGE_SIGNING_KEY_FILE` (optional `APPIMAGE_SIGNING_KEY_ID`, `APPIMAGE_SIGNING_KEY_PASSPHRASE`) and signs AppImage outputs, emitting `<artifact>.sig` files beside the AppImage and failing the build if signing is requested but `gpg`/keys are missing. Verify locally with `gpg --verify apps/desktop/dist/SuperMaestro-<version>-<arch>.AppImage.sig apps/desktop/dist/SuperMaestro-<version>-<arch>.AppImage`.
+- [x] CI/CD for automated builds  
+  Updated `.github/workflows/appimage.yml` to a matrix across Ubuntu/macOS/Windows that installs Node 20 + Bun, runs lint/type-check/vitest, packages AppImage/DMG+ZIP/NSIS outputs, uploads artifacts (including update manifests/blockmaps) on pushes/PRs, and publishes platform assets on tag pushes. `vitest.config.mts` ignores built `dist` outputs so CI only runs source tests.
+- [x] macOS and Windows builds  
+  Added macOS dmg/zip and Windows NSIS targets to `apps/desktop/electron-builder.yml` with platform-specific generic update feeds (`https://updates.supermaestro.invalid/mac` and `/win`), icons, and installer defaults. New npm scripts (`prep:desktop`, `package:mac`, `package:win`) wrap the web + runner build and platform packaging; CI now produces and uploads the artifacts and update manifests for each platform.
 
 ---
 

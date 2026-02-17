@@ -27,7 +27,10 @@
     "mesh:start": "turbo run dev --filter=@agentforge/mesh",
     "cozo:test": "turbo run test --filter=@agentforge/cozo",
     "test": "vitest run",
-    "package:appimage": "npm run build:web && npm run package:appimage --workspace @agentforge/desktop"
+    "prep:desktop": "npm run build:web && npm run build --workspace @agentforge/runner",
+    "package:appimage": "npm run prep:desktop && npm run package:appimage --workspace @agentforge/desktop",
+    "package:mac": "npm run prep:desktop && npm run package:mac --workspace @agentforge/desktop",
+    "package:win": "npm run prep:desktop && npm run package:win --workspace @agentforge/desktop"
   },
   "devDependencies": {
     "turbo": "^2.3.0",

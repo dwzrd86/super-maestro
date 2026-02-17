@@ -145,7 +145,7 @@ function scheduleAutoUpdates(win) {
         cancelId: 1,
         title: 'Update ready',
         message,
-        detail: 'Updates are applied via the AppImage updater and will restart the app.',
+        detail: 'Updates are applied by the built-in updater and will restart the app.',
       });
 
       if (response === 0) {
