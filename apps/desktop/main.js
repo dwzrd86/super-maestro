@@ -1,11 +1,12 @@
 'use strict';
 
-const { app, BrowserWindow, session, shell } = require('electron');
+const { app, BrowserWindow, dialog, session, shell } = require('electron');
 const fs = require('node:fs');
 const net = require('node:net');
 const path = require('node:path');
 const { spawn, spawnSync } = require('node:child_process');
 const waitOn = require('wait-on');
+const { autoUpdater } = require('electron-updater');
 
 app.enableSandbox();
 
@@ -13,6 +14,7 @@ const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
 let mainWindow;
 let nextServerProcess;
 let runnerProcess;
+let updateIntervalHandle;
 let resolvedAppUrl;
 let resolvedRunnerUrl;
 let sessionHardened = false;
@@ -57,6 +59,120 @@ const waitForUrl = async (url, timeout = 30000) =>
     interval: 300,
     validateStatus: (status) => status >= 200 && status < 500,
   });
+
+const updateLogger = {
+  info: (...args) => console.log('[update]', ...args),
+  warn: (...args) => console.warn('[update]', ...args),
+  error: (...args) => console.error('[update]', ...args),
+  debug: (...args) => console.debug('[update]', ...args),
+};
+
+function shouldEnableAutoUpdates() {
+  if (isDev || process.env.SUPER_MAESTRO_DISABLE_UPDATES === '1') {
+    return false;
+  }
+
+  const appUpdateConfig = path.join(process.resourcesPath, 'app-update.yml');
+  return Boolean(process.env.SUPER_MAESTRO_UPDATE_URL || fs.existsSync(appUpdateConfig));
+}
+
+function scheduleAutoUpdates(win) {
+  if (!shouldEnableAutoUpdates()) {
+    return;
+  }
+
+  const feedUrl = process.env.SUPER_MAESTRO_UPDATE_URL;
+  const channel = process.env.SUPER_MAESTRO_UPDATE_CHANNEL || 'latest';
+  const updateIntervalMs = Number(process.env.SUPER_MAESTRO_UPDATE_INTERVAL_MS || 60 * 60 * 1000);
+  const shouldAutoDownload = process.env.SUPER_MAESTRO_AUTO_DOWNLOAD !== 'false';
+  const getDialogTarget = () => (win && !win.isDestroyed() ? win : null);
+
+  autoUpdater.logger = updateLogger;
+  autoUpdater.autoDownload = shouldAutoDownload;
+  autoUpdater.autoInstallOnAppQuit = false;
+  autoUpdater.allowPrerelease = channel !== 'latest';
+
+  if (feedUrl) {
+    try {
+      autoUpdater.setFeedURL({ provider: 'generic', url: feedUrl, channel });
+    } catch (error) {
+      updateLogger.warn('Invalid update feed URL. Auto-update disabled.', error);
+      return;
+    }
+  }
+
+  autoUpdater.on('checking-for-update', () => updateLogger.info('Checking for updates...'));
+  autoUpdater.on('update-available', async (info) => {
+    updateLogger.info(`Update available: ${info.version}`);
+
+    if (!shouldAutoDownload) {
+      try {
+        const { response } = await dialog.showMessageBox(getDialogTarget(), {
+          type: 'info',
+          buttons: ['Download now', 'Later'],
+          defaultId: 0,
+          cancelId: 1,
+          title: 'Update available',
+          message: `Super Maestro ${info.version} is available. Download now?`,
+        });
+
+        if (response === 0) {
+          await autoUpdater.downloadUpdate();
+        } else {
+          updateLogger.info('Update download postponed by user.');
+        }
+      } catch (error) {
+        updateLogger.warn('Update download could not start.', error);
+      }
+    }
+  });
+  autoUpdater.on('update-not-available', () => updateLogger.info('No updates available.'));
+  autoUpdater.on('error', (error) => updateLogger.error('Auto-update error', error));
+  autoUpdater.on('download-progress', (progress) => {
+    const percentage = Math.round(progress.percent ?? 0);
+    const speedKbps = progress.bytesPerSecond ? Math.round(progress.bytesPerSecond / 1024) : 0;
+    updateLogger.info(`Downloading update: ${percentage}% (${speedKbps} kB/s)`);
+  });
+  autoUpdater.on('update-downloaded', async (info) => {
+    const browserWindow = getDialogTarget();
+    const message = `Super Maestro ${info.version} downloaded. Restart now to install?`;
+
+    try {
+      const { response } = await dialog.showMessageBox(browserWindow, {
+        type: 'info',
+        buttons: ['Restart now', 'Later'],
+        defaultId: 0,
+        cancelId: 1,
+        title: 'Update ready',
+        message,
+        detail: 'Updates are applied via the AppImage updater and will restart the app.',
+      });
+
+      if (response === 0) {
+        app.isQuiting = true;
+        autoUpdater.quitAndInstall();
+      }
+    } catch (error) {
+      updateLogger.warn('Failed to present update dialog.', error);
+    }
+  });
+
+  const checkForUpdates = async () => {
+    if (app.isQuiting) return;
+
+    try {
+      await autoUpdater.checkForUpdates();
+    } catch (error) {
+      updateLogger.warn('Auto-update check failed', error);
+    }
+  };
+
+  setTimeout(checkForUpdates, 4000);
+
+  if (Number.isFinite(updateIntervalMs) && updateIntervalMs > 0) {
+    updateIntervalHandle = setInterval(checkForUpdates, updateIntervalMs);
+  }
+}
 
 function stopNextServer() {
   if (nextServerProcess && !nextServerProcess.killed) {
@@ -298,6 +414,8 @@ async function createMainWindow() {
   await win.loadURL(urlToLoad);
   await runnerStartup;
 
+  scheduleAutoUpdates(win);
+
   if (isDev) {
     win.webContents.openDevTools({ mode: 'detach' });
   }
@@ -333,6 +451,10 @@ app.on('window-all-closed', () => {
 
 app.on('before-quit', () => {
   app.isQuiting = true;
+  if (updateIntervalHandle) {
+    clearInterval(updateIntervalHandle);
+    updateIntervalHandle = null;
+  }
   stopRunner();
   stopNextServer();
 });

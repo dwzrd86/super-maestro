@@ -21,6 +21,11 @@ extraResources:
   - from: ../runner
     to: runner
 
+publish:
+  - provider: generic
+    url: https://updates.supermaestro.invalid/appimage
+    channel: latest
+
 linux:
   target:
     - AppImage
