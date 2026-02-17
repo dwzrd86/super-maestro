@@ -1,11 +1,10 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  reactStrictMode: true,
+import path from 'node:path';
+import type { NextConfig } from 'next';
 
-  // Enable experimental features if needed
-  experimental: {
-    // typedRoutes: true,
-  },
+const nextConfig: NextConfig = {
+  reactStrictMode: true,
+  output: 'standalone',
+  outputFileTracingRoot: path.join(__dirname, '../../'),
 
   // Transpile shared package
   transpilePackages: ['@agentforge/shared'],
@@ -26,4 +25,4 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig;
+export default nextConfig;

@@ -3,11 +3,14 @@
 import { Bot } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
+type RacerStatus = 'racing' | 'finished';
+interface Racer { id: string; name: string; model: string; progress: number; status: RacerStatus; }
+
 export default function KartRacePage() {
-  const [racers, setRacers] = useState([
-    { id: 'devops', name: 'DevOps Agent', model: 'Claude Opus', progress: 0, status: 'racing' as const },
-    { id: 'code', name: 'Code Assistant', model: 'Claude Sonnet', progress: 0, status: 'racing' as const },
-    { id: 'research', name: 'Research Bot', model: 'GPT-4', progress: 0, status: 'racing' as const },
+  const [racers, setRacers] = useState<Racer[]>([
+    { id: 'devops', name: 'DevOps Agent', model: 'Claude Opus', progress: 0, status: 'racing' },
+    { id: 'code', name: 'Code Assistant', model: 'Claude Sonnet', progress: 0, status: 'racing' },
+    { id: 'research', name: 'Research Bot', model: 'GPT-4', progress: 0, status: 'racing' },
   ]);
   const [elapsed, setElapsed] = useState(0);
   const [raceStatus, setRaceStatus] = useState<'countdown' | 'racing' | 'finished'>('countdown');

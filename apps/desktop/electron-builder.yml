@@ -1,0 +1,29 @@
+appId: sh.supermaestro.desktop
+productName: Super Maestro
+asar: true
+
+directories:
+  output: dist
+
+files:
+  - "**/*"
+  - "!dist/**/*"
+  - "!node_modules/.cache/**/*"
+
+extraResources:
+  - from: ../web/.next/standalone
+    to: web/.next/standalone
+  - from: ../web/.next/static
+    to: web/.next/static
+  - from: ../web/public
+    to: web/public
+
+linux:
+  target:
+    - AppImage
+  category: Utility
+  artifactName: SuperMaestro-${version}-${arch}.${ext}
+  desktop:
+    Name: Super Maestro
+    Comment: Retro-styled AI agent orchestrator
+    Categories: Utility;Development;

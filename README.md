@@ -96,6 +96,14 @@ npm run type-check   # Type check
 npm run lint         # Lint
 ```
 
+## Desktop App (AppImage)
+
+- Build the standalone web bundle (update env values as needed):\
+  `NEXT_PUBLIC_SUPABASE_URL=http://localhost NEXT_PUBLIC_SUPABASE_ANON_KEY=dummy NEXT_PUBLIC_RUNNER_WS_URL=ws://localhost:3001 NEXTAUTH_SECRET=devsecret NEXTAUTH_URL=http://localhost npm run build:web`
+- Package the Electron shell as an AppImage: `npm run package:appimage` (output lands in `apps/desktop/dist/SuperMaestro-<version>-<arch>.AppImage`).
+- Dev loop: run `npm run dev:web` for the Next.js server, then `npm run dev:desktop` to open the Electron shell against `http://localhost:3000` (override with `DEV_SERVER_URL` if needed).
+- Security defaults: renderer sandbox + `contextIsolation`, Node integration disabled, single-instance lock, navigation/new windows blocked to external browsers, CSP and hardened headers applied to every response, all permissions denied by default, content protection enabled, and the bundled Next.js server bound to `127.0.0.1` only.
+
 ## Apps
 
 ### Web Dashboard (apps/web)
