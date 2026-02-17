@@ -17,6 +17,8 @@ extraResources:
     to: web/.next/static
   - from: ../web/public
     to: web/public
+  - from: ../runner
+    to: runner
 
 linux:
   target:
