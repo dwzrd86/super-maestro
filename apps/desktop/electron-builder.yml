@@ -1,5 +1,6 @@
 appId: sh.supermaestro.desktop
 productName: Super Maestro
+electronVersion: 31.7.7
 asar: true
 
 directories:

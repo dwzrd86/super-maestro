@@ -3,6 +3,10 @@
   "version": "0.2.0",
   "description": "Unified AI Agent Orchestrator - Desktop-native with persistent intelligence and distributed execution",
   "private": true,
+  "dependencies": {
+    "7zip-bin": "~5.2.0",
+    "app-builder-bin": "~4.0.0"
+  },
   "workspaces": [
     "apps/*",
     "packages/*",
