@@ -103,6 +103,7 @@ npm run lint         # Lint
 - Package the Electron shell as an AppImage: `npm run package:appimage` (output lands in `apps/desktop/dist/SuperMaestro-<version>-<arch>.AppImage`).
 - Dev loop: run `npm run dev:web` for the Next.js server, then `npm run dev:desktop` to open the Electron shell against `http://localhost:3000` (override with `DEV_SERVER_URL` if needed).
 - Security defaults: renderer sandbox + `contextIsolation`, Node integration disabled, single-instance lock, navigation/new windows blocked to external browsers, CSP and hardened headers applied to every response, all permissions denied by default, content protection enabled, and the bundled Next.js server bound to `127.0.0.1` only.
+- Code signing: provide `APPIMAGE_SIGNING_KEY` (ASCII-armored or base64) or `APPIMAGE_SIGNING_KEY_FILE`, plus optional `APPIMAGE_SIGNING_KEY_ID` / `APPIMAGE_SIGNING_KEY_PASSPHRASE`. `npm run package:appimage` now runs `apps/desktop/scripts/sign-appimage.js` to GPG-sign the AppImage and drop `<artifact>.sig` beside it. Verify with `gpg --verify apps/desktop/dist/SuperMaestro-<version>-<arch>.AppImage.sig apps/desktop/dist/SuperMaestro-<version>-<arch>.AppImage`.
 - Auto-updates: packaged AppImages include `electron-updater` metadata (generic provider). Set `SUPER_MAESTRO_UPDATE_URL` (and optional `SUPER_MAESTRO_UPDATE_CHANNEL`) at build time for your feed; the app polls hourly and prompts to restart after downloading an update. Set `SUPER_MAESTRO_DISABLE_UPDATES=1` to skip update checks or `SUPER_MAESTRO_AUTO_DOWNLOAD=false` to ask before downloading.
 
 ## Apps
