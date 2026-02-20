@@ -5,7 +5,8 @@
   "private": true,
   "dependencies": {
     "7zip-bin": "~5.2.0",
-    "app-builder-bin": "~4.0.0"
+    "app-builder-bin": "~4.0.0",
+    "patch-package": "^8.0.1"
   },
   "workspaces": [
     "apps/*",
@@ -18,6 +19,7 @@
     "lint": "turbo run lint",
     "type-check": "turbo run type-check",
     "clean": "turbo run clean && rm -rf node_modules",
+    "postinstall": "patch-package",
     "dev:web": "turbo run dev --filter=@agentforge/web",
     "dev:desktop": "npm run dev --workspace @agentforge/desktop",
     "build:web": "turbo run build --filter=@agentforge/web",
@@ -37,8 +39,16 @@
     "typescript": "^5.7.0",
     "vitest": "^4.0.18"
   },
+  "overrides": {
+    "tar": "^7.5.9",
+    "@mapbox/node-pre-gyp": {
+      "tar": "^7.5.9"
+    },
+    "minimatch": "^10.2.1",
+    "glob": "^11.0.0"
+  },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.0.0"
   },
   "packageManager": "npm@10.2.0",
   "license": "AGPL-3.0"

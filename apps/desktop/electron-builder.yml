@@ -33,6 +33,7 @@ linux:
     - AppImage
   category: Utility
   artifactName: SuperMaestro-${version}-${arch}.${ext}
+  icon: build/icon.png
   desktop:
     Name: Super Maestro
     Comment: Retro-styled AI agent orchestrator

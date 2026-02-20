@@ -10,6 +10,34 @@
 
 import { $ } from 'bun';
 
+const SESSION_NAME_PATTERN = /^[a-zA-Z0-9_-]+$/;
+const MAX_INPUT_LENGTH = 4096;
+
+function sanitizeSessionId(value: unknown, label = 'sessionId'): string {
+  if (typeof value !== 'string') {
+    throw new Error(`${label} must be a string`);
+  }
+
+  const trimmed = value.trim();
+  if (!trimmed || trimmed.length > 128 || !SESSION_NAME_PATTERN.test(trimmed)) {
+    throw new Error(`${label} must match ${SESSION_NAME_PATTERN}`);
+  }
+
+  return trimmed;
+}
+
+function sanitizeInput(value: unknown, label = 'input'): string {
+  if (typeof value !== 'string') {
+    throw new Error(`${label} must be a string`);
+  }
+
+  if (value.length > MAX_INPUT_LENGTH || value.includes('\0')) {
+    throw new Error(`${label} rejected due to length or control characters`);
+  }
+
+  return value;
+}
+
 export interface TmuxSession {
   id: string;
   name: string;
@@ -81,7 +109,7 @@ export class TmuxManager {
    * Create a new tmux session.
    */
   async createSession(name?: string): Promise<TmuxSession> {
-    const sessionName = name || `${this.sessionPrefix}${Date.now()}`;
+    const sessionName = sanitizeSessionId(name || `${this.sessionPrefix}${Date.now()}`, 'sessionName');
 
     await $`tmux new-session -d -s ${sessionName}`.quiet();
 
@@ -101,24 +129,31 @@ export class TmuxManager {
    * Kill a tmux session.
    */
   async killSession(sessionId: string): Promise<void> {
-    await $`tmux kill-session -t ${sessionId}`.quiet();
-    console.log(`[tmux] Killed session: ${sessionId}`);
+    const safeSessionId = sanitizeSessionId(sessionId);
+    await $`tmux kill-session -t ${safeSessionId}`.quiet();
+    console.log(`[tmux] Killed session: ${safeSessionId}`);
   }
 
   /**
    * Send input to a tmux session.
    */
   async sendInput(sessionId: string, input: string): Promise<void> {
+    const safeSessionId = sanitizeSessionId(sessionId);
+    const safeInput = sanitizeInput(input);
+
     // Send keys to the session
-    await $`tmux send-keys -t ${sessionId} ${input}`.quiet();
+    await $`tmux send-keys -t ${safeSessionId} ${safeInput}`.quiet();
   }
 
   /**
    * Send a command to a tmux session (with Enter key).
    */
   async sendCommand(sessionId: string, command: string): Promise<void> {
-    await $`tmux send-keys -t ${sessionId} ${command} Enter`.quiet();
-    console.log(`[tmux] Sent command to ${sessionId}: ${command}`);
+    const safeSessionId = sanitizeSessionId(sessionId);
+    const safeCommand = sanitizeInput(command, 'command');
+
+    await $`tmux send-keys -t ${safeSessionId} ${safeCommand} Enter`.quiet();
+    console.log(`[tmux] Sent command to ${safeSessionId}: ${safeCommand}`);
   }
 
   /**
@@ -130,7 +165,8 @@ export class TmuxManager {
     endLine = 1000
   ): Promise<string> {
     try {
-      const result = await $`tmux capture-pane -t ${sessionId} -p -S ${startLine} -E ${endLine}`.text();
+      const safeSessionId = sanitizeSessionId(sessionId);
+      const result = await $`tmux capture-pane -t ${safeSessionId} -p -S ${startLine} -E ${endLine}`.text();
       return result;
     } catch (error) {
       console.error(`[tmux] Failed to capture pane for ${sessionId}:`, error);
@@ -143,7 +179,8 @@ export class TmuxManager {
    */
   async listPanes(sessionId: string): Promise<TmuxPane[]> {
     try {
-      const result = await $`tmux list-panes -t ${sessionId} -F "#{pane_id}|#{pane_active}|#{pane_pid}|#{pane_current_path}"`.text();
+      const safeSessionId = sanitizeSessionId(sessionId);
+      const result = await $`tmux list-panes -t ${safeSessionId} -F "#{pane_id}|#{pane_active}|#{pane_pid}|#{pane_current_path}"`.text();
 
       return result
         .trim()
@@ -174,7 +211,8 @@ export class TmuxManager {
     height: number
   ): Promise<void> {
     try {
-      await $`tmux resize-window -t ${sessionId} -x ${width} -y ${height}`.quiet();
+      const safeSessionId = sanitizeSessionId(sessionId);
+      await $`tmux resize-window -t ${safeSessionId} -x ${width} -y ${height}`.quiet();
     } catch (error) {
       // Resize may fail if attached, that's okay
       console.log(`[tmux] Resize may have failed for ${sessionId}`);

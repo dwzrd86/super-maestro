@@ -23,6 +23,30 @@ interface ServerOptions {
   tmuxManager: TmuxManager;
 }
 
+const SESSION_ID_PATTERN = /^[a-zA-Z0-9_-]+$/;
+const MAX_PAYLOAD_LENGTH = 4096;
+
+function assertSessionId(value: unknown, label = 'sessionId'): string {
+  if (typeof value !== 'string') {
+    throw new Error(`${label} must be a string`);
+  }
+  const trimmed = value.trim();
+  if (!trimmed || trimmed.length > 128 || !SESSION_ID_PATTERN.test(trimmed)) {
+    throw new Error(`${label} must match ${SESSION_ID_PATTERN}`);
+  }
+  return trimmed;
+}
+
+function assertInput(value: unknown, label = 'data'): string {
+  if (typeof value !== 'string') {
+    throw new Error(`${label} must be a string`);
+  }
+  if (value.length > MAX_PAYLOAD_LENGTH || value.includes('\0')) {
+    throw new Error(`${label} rejected due to length or control characters`);
+  }
+  return value;
+}
+
 export class WebSocketServer {
   private server: ReturnType<typeof Bun.serve> | null = null;
   private clients: Map<string, ServerWebSocket<WebSocketData>> = new Map();
@@ -134,61 +158,85 @@ export class WebSocketServer {
   ): Promise<void> {
     const { tmuxManager } = this.options;
 
-    switch (message.type as WsMessageType) {
-      case 'ping':
-        this.send(ws, {
-          id: crypto.randomUUID(),
-          type: 'pong',
-          payload: {},
-          timestamp: new Date(),
-        });
-        break;
+    try {
+      switch (message.type as WsMessageType) {
+        case 'ping':
+          this.send(ws, {
+            id: crypto.randomUUID(),
+            type: 'pong',
+            payload: {},
+            timestamp: new Date(),
+          });
+          break;
 
-      case 'session:join':
-        const joinPayload = message.payload as { sessionId: string };
-        ws.data.subscribedSessions.add(joinPayload.sessionId);
-        console.log(`[ws] Client ${ws.data.id} joined session ${joinPayload.sessionId}`);
-        break;
+        case 'session:join': {
+          const joinPayload = message.payload as { sessionId?: unknown };
+          const sessionId = assertSessionId(joinPayload.sessionId);
+          ws.data.subscribedSessions.add(sessionId);
+          console.log(`[ws] Client ${ws.data.id} joined session ${sessionId}`);
+          break;
+        }
 
-      case 'session:leave':
-        const leavePayload = message.payload as { sessionId: string };
-        ws.data.subscribedSessions.delete(leavePayload.sessionId);
-        console.log(`[ws] Client ${ws.data.id} left session ${leavePayload.sessionId}`);
-        break;
+        case 'session:leave': {
+          const leavePayload = message.payload as { sessionId?: unknown };
+          const sessionId = assertSessionId(leavePayload.sessionId);
+          ws.data.subscribedSessions.delete(sessionId);
+          console.log(`[ws] Client ${ws.data.id} left session ${sessionId}`);
+          break;
+        }
 
-      case 'session:create':
-        const createPayload = message.payload as { name?: string };
-        const session = await tmuxManager.createSession(createPayload.name);
-        this.send(ws, {
-          id: crypto.randomUUID(),
-          type: 'session:create',
-          payload: { session },
-          timestamp: new Date(),
-        });
-        break;
+        case 'session:create': {
+          const createPayload = message.payload as { name?: unknown };
+          const name = createPayload.name === undefined ? undefined : assertSessionId(createPayload.name, 'sessionName');
+          const session = await tmuxManager.createSession(name);
+          this.send(ws, {
+            id: crypto.randomUUID(),
+            type: 'session:create',
+            payload: { session },
+            timestamp: new Date(),
+          });
+          break;
+        }
 
-      case 'terminal:input':
-        const inputPayload = message.payload as {
-          sessionId: string;
-          data: string;
-        };
-        await tmuxManager.sendInput(inputPayload.sessionId, inputPayload.data);
-        break;
+        case 'terminal:input': {
+          const inputPayload = message.payload as {
+            sessionId?: unknown;
+            data?: unknown;
+          };
+          const sessionId = assertSessionId(inputPayload.sessionId);
+          const data = assertInput(inputPayload.data);
+          await tmuxManager.sendInput(sessionId, data);
+          break;
+        }
 
-      case 'terminal:resize':
-        const resizePayload = message.payload as {
-          sessionId: string;
-          cols: number;
-          rows: number;
-        };
-        // tmux resize is handled per-client, not needed for now
-        console.log(
-          `[ws] Resize request for ${resizePayload.sessionId}: ${resizePayload.cols}x${resizePayload.rows}`
-        );
-        break;
+        case 'terminal:resize': {
+          const resizePayload = message.payload as {
+            sessionId?: unknown;
+            cols?: unknown;
+            rows?: unknown;
+          };
+          const sessionId = assertSessionId(resizePayload.sessionId);
+          const cols = Number(resizePayload.cols);
+          const rows = Number(resizePayload.rows);
+          if (!Number.isFinite(cols) || !Number.isFinite(rows)) {
+            throw new Error('Resize payload must include numeric cols/rows');
+          }
+          console.log(`[ws] Resize request for ${sessionId}: ${cols}x${rows}`);
+          break;
+        }
 
-      default:
-        console.log(`[ws] Unknown message type: ${message.type}`);
+        default:
+          console.log(`[ws] Unknown message type: ${message.type}`);
+      }
+    } catch (error) {
+      const messageText = error instanceof Error ? error.message : 'Unknown error';
+      console.error('[ws] Handler error', error);
+      this.send(ws, {
+        id: crypto.randomUUID(),
+        type: 'error',
+        payload: { code: 'INVALID_PAYLOAD', message: messageText },
+        timestamp: new Date(),
+      });
     }
   }
 
