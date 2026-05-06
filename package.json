@@ -36,7 +36,8 @@
     "package:deb": "npm run prep:desktop && npm run package:deb --workspace @agentforge/desktop",
     "convex:dev": "npx convex dev",
     "convex:deploy": "npx convex deploy",
-    "convex:codegen": "npx convex codegen"
+    "convex:codegen": "npx convex codegen",
+    "convex:dashboard": "npx convex dashboard"
   },
   "devDependencies": {
     "turbo": "^2.3.0",
