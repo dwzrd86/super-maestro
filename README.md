@@ -96,6 +96,10 @@ npm run type-check   # Type check
 npm run lint         # Lint
 ```
 
+## Production Deployment
+
+Super Maestro should be deployed as a signed desktop app first. Use AppImage as the primary Linux artifact, `.deb` as the Ubuntu/Debian convenience package, macOS `.dmg`/`.zip`, and Windows NSIS `.exe`; keep Flatpak and hosted web-only deployment as follow-up tracks. See [Production deployment](docs/production-deployment.md) for the release strategy and readiness checklist.
+
 ## Desktop App
 
 - Build the shared bundles (web + runner) before packaging:\

@@ -32,7 +32,9 @@
     "prep:desktop": "npm run build:web && npm run build --workspace @agentforge/runner",
     "package:appimage": "npm run prep:desktop && npm run package:appimage --workspace @agentforge/desktop",
     "package:mac": "npm run prep:desktop && npm run package:mac --workspace @agentforge/desktop",
-    "package:win": "npm run prep:desktop && npm run package:win --workspace @agentforge/desktop"
+    "package:win": "npm run prep:desktop && npm run package:win --workspace @agentforge/desktop",
+    "package:linux": "npm run prep:desktop && npm run package:linux --workspace @agentforge/desktop",
+    "package:deb": "npm run prep:desktop && npm run package:deb --workspace @agentforge/desktop"
   },
   "devDependencies": {
     "turbo": "^2.3.0",
