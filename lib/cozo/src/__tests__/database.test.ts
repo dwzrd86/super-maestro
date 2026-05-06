@@ -1,14 +1,13 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-// Mock cozo-node before importing database module
-vi.mock('cozo-node', () => {
-  return {
-    CozoDb: vi.fn().mockImplementation(function (this: any) {
-      this.run = vi.fn().mockResolvedValue({ ok: true, rows: [], headers: [] });
-      this.close = vi.fn();
-    }),
-  };
+const CozoDb = vi.fn().mockImplementation(function (this: any) {
+  this.run = vi.fn().mockResolvedValue({ ok: true, rows: [], headers: [] });
+  this.close = vi.fn();
 });
+
+vi.mock('../cozo-node', () => ({
+  loadCozoDb: vi.fn(() => CozoDb),
+}));
 
 vi.mock('fs', async () => {
   const actual = await vi.importActual<typeof import('fs')>('fs');
@@ -23,7 +22,6 @@ vi.mock('../schema', () => ({
 }));
 
 import { AgentDatabase } from '../database';
-import { CozoDb } from 'cozo-node';
 import * as fs from 'fs';
 import { initializeSchema } from '../schema';
 

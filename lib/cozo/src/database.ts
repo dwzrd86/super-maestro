@@ -7,7 +7,7 @@
  * - Query execution with type safety
  */
 
-import { CozoDb } from 'cozo-node';
+import { loadCozoDb, type CozoDbLike } from './cozo-node';
 import { initializeSchema } from './schema';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -24,7 +24,7 @@ export interface AgentDatabaseOptions {
 }
 
 export class AgentDatabase {
-  private db: CozoDb | null = null;
+  private db: CozoDbLike | null = null;
   private readonly agentId: string;
   private readonly dbPath: string;
   private initialized = false;
@@ -48,6 +48,7 @@ export class AgentDatabase {
     if (this.db) return;
 
     // CozoDb constructor is synchronous
+    const CozoDb = loadCozoDb();
     this.db = new CozoDb('sqlite', this.dbPath);
 
     if (!this.initialized) {
@@ -109,7 +110,7 @@ export class AgentDatabase {
   /**
    * Get the underlying CozoDb instance for advanced operations.
    */
-  getDb(): CozoDb {
+  getDb(): CozoDbLike {
     if (!this.db) {
       throw new Error('Database not open. Call open() first.');
     }
