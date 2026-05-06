@@ -41,7 +41,7 @@ Set `SUPER_MAESTRO_UPDATE_URL` and `SUPER_MAESTRO_UPDATE_CHANNEL` in CI when pac
 
 ## Production build commands
 
-Build all desktop assets after deploying Convex and setting the public deployment URL:
+Build all desktop assets after deploying Convex and setting the public deployment URL. The desktop build no longer reads Supabase environment variables, so do not set `NEXT_PUBLIC_SUPABASE_URL` or `NEXT_PUBLIC_SUPABASE_ANON_KEY` for production packaging.
 
 ```bash
 NEXT_PUBLIC_CONVEX_URL=https://<deployment>.convex.cloud \
