@@ -15,7 +15,6 @@ env:
   NEXT_PUBLIC_RUNNER_WS_URL: ws://localhost:3001
   NEXTAUTH_SECRET: devsecret
   NEXTAUTH_URL: http://localhost:3000
-  NODE_ENV: production
 
 jobs:
   desktop:
@@ -77,6 +76,8 @@ jobs:
 
       - name: Package desktop build
         run: ${{ matrix.package_script }}
+        env:
+          NODE_ENV: production
 
       - name: Upload workflow artifact
         uses: actions/upload-artifact@v4
