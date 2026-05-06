@@ -44,6 +44,9 @@ linux:
       url: https://updates.supermaestro.invalid/appimage
       channel: latest
 
+dmg:
+  backgroundColor: "#05070a"
+
 mac:
   target:
     - dmg
