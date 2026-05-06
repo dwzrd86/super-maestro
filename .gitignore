@@ -42,9 +42,8 @@ Thumbs.db
 # Turbo
 .turbo
 
-# Supabase
-supabase/.branches
-supabase/.temp
+# Convex
+convex/.env.local
 
 # Certificates
 *.pem

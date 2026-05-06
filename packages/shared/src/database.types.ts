@@ -1,10 +1,8 @@
 /**
- * Database Types (Supabase Generated)
+ * Database Types (Convex Cloud Model)
  *
- * This file should be regenerated using:
- * npm run db:generate
- *
- * For now, this is a stub that will be replaced when the database is set up.
+ * Convex-generated types come from `convex/_generated` after `npm run convex:codegen`.
+ * These shared compatibility types mirror the cloud document shape used across packages.
  */
 
 export type Json =

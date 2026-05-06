@@ -18,7 +18,7 @@ super-maestro/
 │   └── mesh/         # Peer mesh network - distributed orchestration
 ├── packages/
 │   └── shared/       # Shared TypeScript types and utilities
-├── supabase/         # Database migrations and configuration
+├── convex/          # Convex cloud database schema and functions
 └── turbo.json        # Turborepo build configuration
 ```
 
@@ -61,7 +61,7 @@ Agent benchmarking disguised as a racing game:
 - **Agent Runner**: Bun, WebSocket server, tmux integration
 - **Agent Memory**: CozoDB (embedded graph-relational database per agent)
 - **Distribution**: Peer mesh network (WebSocket federation)
-- **Database**: Supabase (PostgreSQL) for user/team data
+- **Database**: Convex for user/team/project orchestration data
 - **Monorepo**: Turborepo
 
 ## Getting Started
@@ -70,7 +70,7 @@ Agent benchmarking disguised as a racing game:
 
 - Node.js >= 18
 - Bun (for runner app)
-- Supabase CLI (optional, for local development)
+- Convex CLI (`npm run convex:dev` uses `npx convex`)
 
 ### Installation
 
@@ -80,6 +80,7 @@ npm install
 
 # Copy environment files
 cp apps/web/.env.example apps/web/.env.local
+# then set NEXT_PUBLIC_CONVEX_URL after running npm run convex:dev
 
 # Start development servers
 npm run dev
@@ -103,7 +104,7 @@ Super Maestro should be deployed as a signed desktop app first. Use AppImage as 
 ## Desktop App
 
 - Build the shared bundles (web + runner) before packaging:\
-  `NEXT_PUBLIC_SUPABASE_URL=http://localhost NEXT_PUBLIC_SUPABASE_ANON_KEY=dummy NEXT_PUBLIC_RUNNER_WS_URL=ws://localhost:3001 NEXTAUTH_SECRET=devsecret NEXTAUTH_URL=http://localhost npm run prep:desktop`
+  `NEXT_PUBLIC_CONVEX_URL=https://example.convex.cloud NEXT_PUBLIC_RUNNER_WS_URL=ws://localhost:3001 NEXTAUTH_SECRET=devsecret NEXTAUTH_URL=http://localhost npm run prep:desktop`
 - Package outputs:
   - Linux (AppImage): `npm run package:appimage` → `apps/desktop/dist/SuperMaestro-<version>-<arch>.AppImage` (+ `.sig` if signing enabled)
   - macOS (run on macOS): `npm run package:mac` → `apps/desktop/dist/SuperMaestro-<version>-mac-<arch>.dmg` and `.zip`
@@ -112,6 +113,10 @@ Super Maestro should be deployed as a signed desktop app first. Use AppImage as 
 - Security defaults: renderer sandbox + `contextIsolation`, Node integration disabled, single-instance lock, navigation/new windows blocked to external browsers, CSP and hardened headers applied to every response, all permissions denied by default, content protection enabled, and the bundled Next.js server bound to `127.0.0.1` only.
 - Code signing: Linux AppImages use `APPIMAGE_SIGNING_KEY` or `APPIMAGE_SIGNING_KEY_FILE` (with optional `APPIMAGE_SIGNING_KEY_ID` / `APPIMAGE_SIGNING_KEY_PASSPHRASE`) to GPG-sign via `apps/desktop/scripts/sign-appimage.js`; macOS and Windows builds pick up standard `electron-builder` signing env vars (`CSC_LINK`/`CSC_KEY_PASSWORD`, `APPLE_ID`/`APPLE_APP_SPECIFIC_PASSWORD`, or `WIN_CSC_LINK`/`WIN_CSC_KEY_PASSWORD`). Without these values, platform builds remain unsigned.
 - Auto-updates: packaged builds ship `electron-updater` metadata (generic provider). Defaults point to `https://updates.supermaestro.invalid/appimage` (Linux), `/mac`, and `/win`; override with `SUPER_MAESTRO_UPDATE_URL` (and optional `SUPER_MAESTRO_UPDATE_CHANNEL`). The app polls hourly and prompts before restart; set `SUPER_MAESTRO_DISABLE_UPDATES=1` to skip checks or `SUPER_MAESTRO_AUTO_DOWNLOAD=false` to ask before downloading.
+
+## Cloud Database (Convex)
+
+Convex is the cloud database for teams, users, agents, playbooks, runs, and messages. The schema lives in `convex/schema.ts`; see [Convex database migration](docs/convex-migration.md) for migration notes and command usage. CozoDB remains the optional embedded per-agent memory layer.
 
 ## Apps
 

@@ -9,9 +9,7 @@ on:
   workflow_dispatch:
 
 env:
-  NEXT_PUBLIC_SUPABASE_URL: http://localhost
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: dev-anon-key
-  SUPABASE_SERVICE_ROLE_KEY: dev-service-role-key
+  NEXT_PUBLIC_CONVEX_URL: https://example.convex.cloud
   NEXT_PUBLIC_RUNNER_WS_URL: ws://localhost:3001
   NEXTAUTH_SECRET: devsecret
   NEXTAUTH_URL: http://localhost:3000
