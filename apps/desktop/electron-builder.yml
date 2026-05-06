@@ -3,6 +3,7 @@ productName: Super Maestro
 electronVersion: 31.7.7
 asar: true
 afterAllArtifactBuild: ./scripts/sign-appimage.js
+npmRebuild: false
 
 directories:
   output: dist
