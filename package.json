@@ -6,6 +6,7 @@
   "dependencies": {
     "7zip-bin": "~5.2.0",
     "app-builder-bin": "~4.0.0",
+    "async-exit-hook": "^2.0.1",
     "patch-package": "^8.0.1"
   },
   "workspaces": [
@@ -24,15 +25,18 @@
     "dev:desktop": "npm run dev --workspace @agentforge/desktop",
     "build:web": "turbo run build --filter=@agentforge/web",
     "dev:runner": "turbo run dev --filter=@agentforge/runner",
-    "db:migrate": "cd supabase && supabase db push",
-    "db:generate": "cd supabase && supabase gen types typescript --local > ../packages/shared/src/database.types.ts",
     "mesh:start": "turbo run dev --filter=@agentforge/mesh",
     "cozo:test": "turbo run test --filter=@agentforge/cozo",
     "test": "vitest run",
     "prep:desktop": "npm run build:web && npm run build --workspace @agentforge/runner",
     "package:appimage": "npm run prep:desktop && npm run package:appimage --workspace @agentforge/desktop",
     "package:mac": "npm run prep:desktop && npm run package:mac --workspace @agentforge/desktop",
-    "package:win": "npm run prep:desktop && npm run package:win --workspace @agentforge/desktop"
+    "package:win": "npm run prep:desktop && npm run package:win --workspace @agentforge/desktop",
+    "package:linux": "npm run prep:desktop && npm run package:linux --workspace @agentforge/desktop",
+    "package:deb": "npm run prep:desktop && npm run package:deb --workspace @agentforge/desktop",
+    "convex:dev": "npx convex dev",
+    "convex:deploy": "npx convex deploy",
+    "convex:codegen": "npx convex codegen"
   },
   "devDependencies": {
     "turbo": "^2.3.0",

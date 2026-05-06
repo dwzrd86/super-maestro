@@ -8,14 +8,14 @@
  * - Agent state (subconscious)
  */
 
-import type { CozoDb } from 'cozo-node';
+import type { CozoDbLike } from './cozo-node';
 
 export const SCHEMA_VERSION = '1.0.0';
 
 /**
  * Initialize the CozoDB schema for an agent database.
  */
-export async function initializeSchema(db: CozoDb): Promise<void> {
+export async function initializeSchema(db: CozoDbLike): Promise<void> {
   // Check if schema already exists
   const existsCheck = await db.run(`
     ?[name] := *relation_info{ name }
@@ -127,7 +127,7 @@ export async function initializeSchema(db: CozoDb): Promise<void> {
 /**
  * Get the current schema version.
  */
-export async function getSchemaVersion(db: CozoDb): Promise<string | null> {
+export async function getSchemaVersion(db: CozoDbLike): Promise<string | null> {
   const result = await db.run(`
     ?[value] := *schema_info{ key: 'version', value }
   `);

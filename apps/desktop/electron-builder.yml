@@ -3,6 +3,7 @@ productName: Super Maestro
 electronVersion: 31.7.7
 asar: true
 afterAllArtifactBuild: ./scripts/sign-appimage.js
+npmRebuild: false
 
 directories:
   output: dist
@@ -31,6 +32,7 @@ publish:
 linux:
   target:
     - AppImage
+    - deb
   category: Utility
   artifactName: SuperMaestro-${version}-${arch}.${ext}
   icon: build/icon.png
@@ -42,6 +44,9 @@ linux:
     - provider: generic
       url: https://updates.supermaestro.invalid/appimage
       channel: latest
+
+dmg:
+  backgroundColor: "#05070a"
 
 mac:
   target:

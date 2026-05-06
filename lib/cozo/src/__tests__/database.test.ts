@@ -1,14 +1,13 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-// Mock cozo-node before importing database module
-vi.mock('cozo-node', () => {
-  return {
-    CozoDb: vi.fn().mockImplementation(function (this: any) {
-      this.run = vi.fn().mockResolvedValue({ ok: true, rows: [], headers: [] });
-      this.close = vi.fn();
-    }),
-  };
+const CozoDb = vi.fn().mockImplementation(function (this: any) {
+  this.run = vi.fn().mockResolvedValue({ ok: true, rows: [], headers: [] });
+  this.close = vi.fn();
 });
+
+vi.mock('../cozo-node', () => ({
+  loadCozoDb: vi.fn(() => CozoDb),
+}));
 
 vi.mock('fs', async () => {
   const actual = await vi.importActual<typeof import('fs')>('fs');
@@ -23,8 +22,8 @@ vi.mock('../schema', () => ({
 }));
 
 import { AgentDatabase } from '../database';
-import { CozoDb } from 'cozo-node';
 import * as fs from 'fs';
+import * as path from 'path';
 import { initializeSchema } from '../schema';
 
 describe('lib/cozo AgentDatabase', () => {
@@ -45,13 +44,13 @@ describe('lib/cozo AgentDatabase', () => {
 
     it('constructs database path from baseDir and agentId', () => {
       const db = new AgentDatabase(defaultOptions);
-      expect(db.getPath()).toBe('/tmp/agentforge-test/test-agent-001/memory.db');
+      expect(db.getPath()).toBe(path.join('/tmp/agentforge-test', 'test-agent-001', 'memory.db'));
     });
 
     it('creates agent directory by default', () => {
       new AgentDatabase(defaultOptions);
       expect(fs.mkdirSync).toHaveBeenCalledWith(
-        '/tmp/agentforge-test/test-agent-001',
+        path.join('/tmp/agentforge-test', 'test-agent-001'),
         { recursive: true },
       );
     });
@@ -204,7 +203,7 @@ describe('lib/cozo AgentDatabase', () => {
         agentId: 'my-agent',
         baseDir: '/data/agents',
       });
-      expect(db.getPath()).toBe('/data/agents/my-agent/memory.db');
+      expect(db.getPath()).toBe(path.join('/data/agents', 'my-agent', 'memory.db'));
     });
   });
 });

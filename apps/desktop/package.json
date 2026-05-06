@@ -13,7 +13,9 @@
     "package:mac": "electron-builder -c electron-builder.yml --mac dmg zip",
     "package:win": "electron-builder -c electron-builder.yml --win nsis",
     "clean": "rm -rf dist",
-    "lint": "node --check main.js preload.js"
+    "lint": "node --check main.js preload.js",
+    "package:linux": "electron-builder -c electron-builder.yml --linux AppImage deb",
+    "package:deb": "electron-builder -c electron-builder.yml --linux deb"
   },
   "dependencies": {
     "electron-updater": "^6.7.3",
