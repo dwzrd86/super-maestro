@@ -41,10 +41,11 @@ Set `SUPER_MAESTRO_UPDATE_URL` and `SUPER_MAESTRO_UPDATE_CHANNEL` in CI when pac
 
 ## Production build commands
 
-Build all desktop assets after deploying Convex and setting the public deployment URL. The desktop build no longer reads Supabase environment variables, so do not set `NEXT_PUBLIC_SUPABASE_URL` or `NEXT_PUBLIC_SUPABASE_ANON_KEY` for production packaging.
+Build all desktop assets first:
 
 ```bash
-NEXT_PUBLIC_CONVEX_URL=https://<deployment>.convex.cloud \
+NEXT_PUBLIC_SUPABASE_URL=https://<project>.supabase.co \
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon-key> \
 NEXT_PUBLIC_RUNNER_WS_URL=ws://127.0.0.1:3001 \
 NEXTAUTH_SECRET=<long-random-secret> \
 NEXTAUTH_URL=https://app.supermaestro.sh \
@@ -106,7 +107,7 @@ Do not prioritize Flatpak for the first production release. Revisit it after the
 
 Ship the hosted web dashboard as a companion surface only after the desktop app can connect to it safely:
 
-- Convex deployment is production-configured with authorization checks in queries/mutations and backup/export runbooks.
+- Supabase project is production-configured with RLS policies and backup/restore runbooks.
 - Authentication, teams, and billing boundaries are threat-modeled.
 - Runner pairing uses short-lived tokens and explicit device approval.
 - Hosted pages clearly explain that local execution requires the desktop app or runner.
